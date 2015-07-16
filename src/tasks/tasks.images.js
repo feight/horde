@@ -19,6 +19,10 @@ module.exports = function(grunt){
 
     var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
 
+    var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
+
+    var extend = require("node.extend");
+
 
     /* -------------------------------------------------------------------- */
     /*
@@ -27,9 +31,11 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.cutResponsive = function(images, settings){
+    this.cutResponsive = function(images, options){
 
         var fs = require("fs");
+
+        options = extend(settings.images.responsive.options || {}, options || {});
 
         var compileMatches = function(files){
 
@@ -107,7 +113,7 @@ module.exports = function(grunt){
 
         var cutResponsiveImages = function(matches, cb){
 
-            var cuts = settings.multiples;
+            var cuts = options.multiples;
 
             var resizeImage = function(match){
 
@@ -156,7 +162,7 @@ module.exports = function(grunt){
 
     };
 
-    this.cutSizes = function(files, settings){
+    this.cutSizes = function(files, options){
 
         var fs = require("fs");
         var path = require("path");

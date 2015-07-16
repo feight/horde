@@ -156,8 +156,6 @@ module.exports = function(grunt){
                     str[key] = this.process(str[key], data);
                 }
 
-                console.log(str);
-
                 return str;
 
             }else if(typeof str === "string"){

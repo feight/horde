@@ -19,6 +19,10 @@ module.exports = function(grunt){
 
     var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
 
+    var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
+
+    var extend = require("node.extend");
+
     var fs = require("fs");
 
 
@@ -30,6 +34,12 @@ module.exports = function(grunt){
 
 
     this.js = function(paths, options, id){
+
+        paths = paths || [];
+
+        paths = paths.concat(utils.expand(settings.minify.js.paths || []));
+
+        options = extend(settings.minify.js.options || {}, options || {});
 
         utils.runHistoryFunction(paths, "minify", "uglify", id, function(selects, callback){
 
@@ -48,6 +58,12 @@ module.exports = function(grunt){
     };
 
     this.css = function(paths, options, id){
+
+        paths = paths || [];
+
+        paths = paths.concat(utils.expand(settings.minify.css.paths || []));
+
+        options = extend(settings.minify.css.options || {}, options || {});
 
         utils.runHistoryFunction(paths, "minify", "css", id, function(selects, callback){
 

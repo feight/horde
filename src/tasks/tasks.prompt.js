@@ -66,7 +66,6 @@ module.exports = function(grunt){
 
     this.site = function(callback){
 
-        var extend = require("node.extend");
         var inquirer = require("inquirer");
         var path = require("path");
         var fs = require("fs");

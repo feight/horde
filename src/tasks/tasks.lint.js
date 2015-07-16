@@ -19,6 +19,10 @@ module.exports = function(grunt){
 
     var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
 
+    var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
+
+    var extend = require("node.extend");
+
 
     /* -------------------------------------------------------------------- */
     /*
@@ -28,6 +32,12 @@ module.exports = function(grunt){
 
 
     this.jscs = function(paths, options, id){
+
+        paths = paths || [];
+
+        paths = paths.concat(utils.expand(settings.lint.jscs.paths || []));
+
+        options = extend(settings.lint.jscs.options || {}, options || {});
 
         utils.runHistoryFunction(paths, "lint", "jscs", id, function(selects, callback){
 
@@ -41,6 +51,12 @@ module.exports = function(grunt){
 
     this.jshint = function(paths, options, id){
 
+        paths = paths || [];
+
+        paths = paths.concat(utils.expand(settings.lint.jshint.paths || []));
+
+        options = extend(settings.lint.jscs.options || {}, options || {});
+
         utils.runHistoryFunction(paths, "lint", "jshint", id, function(selects, callback){
 
             utils.execSync("jshint {0} --config {1}".format(selects.join(" "), options.config));
@@ -53,7 +69,23 @@ module.exports = function(grunt){
 
     };
 
-    this.lesslint = function(paths, options, lessPaths, id){
+    this.jshintNode = function(paths, options, id){
+
+        paths = paths || [];
+
+        paths = paths.concat(utils.expand(settings.lint.jshint_node.paths || []));
+
+        options = extend(settings.lint.jshint_node.options || {}, options || {});
+
+        this.jshint(paths, options, "node");
+
+    };
+
+    this.lesslint = function(paths, options, id){
+
+        options = extend(settings.lint.jscs.options || {}, options || {});
+
+        paths.concat(settings.lint.jscs.paths || []);
 
         utils.runHistoryFunction(paths, "lint", "lesslint", id, function(selects, callback){
 

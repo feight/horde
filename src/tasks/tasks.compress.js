@@ -19,6 +19,12 @@ module.exports = function(grunt){
 
     var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
 
+    var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
+
+    var extend = require("node.extend");
+    var path = require("path");
+    var fs = require("fs");
+
 
     /* -------------------------------------------------------------------- */
     /*
@@ -28,8 +34,6 @@ module.exports = function(grunt){
 
 
     var getCompressions = function(files){
-
-        var fs = require("fs");
 
         var compressions = [];
 
@@ -76,9 +80,6 @@ module.exports = function(grunt){
 
     var getGroups = function(files){
 
-        var path = require("path");
-        var fs = require("fs");
-
         var css = [];
         var js = [];
 
@@ -120,8 +121,6 @@ module.exports = function(grunt){
 
     var combine = function(root, type, output, files, debug){
 
-        var path = require("path");
-        var fs = require("fs");
         var source = "";
 
         output = path.join(root, output);
@@ -170,11 +169,15 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    var compress = function(files, options){
+    var compress = function(paths, options){
 
-        var path = require("path");
+        paths = paths || [];
 
-        var comps = getCompressions(files);
+        paths = paths.concat(utils.expand(settings.compile.less.paths || []));
+
+        options = extend(settings.compile.less.options || {}, options || {});
+
+        var comps = getCompressions(paths);
 
         for(var i = 0; i < comps.length; i++){
 

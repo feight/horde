@@ -19,6 +19,10 @@ module.exports = function(grunt){
 
     var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
 
+    var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
+
+    var extend = require("node.extend");
+
 
     /* -------------------------------------------------------------------- */
     /*
@@ -28,6 +32,12 @@ module.exports = function(grunt){
 
 
     this.less = function(paths, options, id){
+
+        paths = paths || [];
+
+        paths = paths.concat(utils.expand(settings.compile.less.paths || []));
+
+        options = extend(settings.compile.less.options || {}, options || {});
 
         utils.runHistoryFunction(paths, "compile", "less", id, function(selects, callback){
 

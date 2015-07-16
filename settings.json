@@ -1,0 +1,74 @@
+{
+    "clean" : {
+        "paths" : [
+            "horde/temp"
+        ]
+    },
+    "compile" : {
+        "less" : {
+            "options" : {
+                "cleancss" : true,
+                "compress" : true
+            }
+        }
+    },
+    "compress" : {
+        "templates" : {
+            "options" : {
+                "debug" : false,
+                "root" : ""
+            }
+        }
+    },
+    "images" : {
+        "responsive" : {
+            "options" : {
+                "multiples" : [1, 2, 4]
+            }
+        }
+    },
+    "lint" : {
+        "jscs" : {
+            "options" : {
+                "config" : "horde/settings.jscs.json"
+            },
+            "paths" : [
+                "Gruntfile.js",
+                "horde/src/**/*.js"
+            ]
+        },
+        "jshint" : {
+            "options" : {
+                "config" : "horde/settings.jshint.json"
+            },
+            "paths" : []
+        },
+        "jshint_node" : {
+            "options" : {
+                "config" : "horde/settings.jshint.node.json"
+            },
+            "paths" : [
+                "Gruntfile.js",
+                "horde/src/**/*.js"
+            ]
+        },
+        "lesslint" : {
+            "options" : {
+                "config" : "horde/settings.lesslint.json"
+            },
+            "paths" : []
+        }
+    },
+    "minify" : {
+        "js" : {
+            "options" : {
+                "compress" : {
+                    "drop_console" : true
+                }
+            }
+        },
+        "css" : {
+            "options" : {}
+        }
+    }
+}
