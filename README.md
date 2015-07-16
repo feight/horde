@@ -4,12 +4,12 @@ The Horde (group of grunts)
 Overview
 ------------------------------------------------------------------------------
 
-Horde is a collection of grunt tasks and utilities to make rolling out grunt across multiple projects much easier.
+The Horde is a collection of grunt tasks and utilities to make rolling out grunt across multiple projects much easier.
 
 Setup
 ------------------------------------------------------------------------------
 
-1. Include horde as a submodule in the root of your project.
+1. Include The Horde as a submodule in the root of your project.
 2. Run the setup bash.
 ```
 ./setup.sh
