@@ -17,7 +17,7 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    var utils = require(require("path").resolve("grunt/src/utils/utils.js"))(grunt);
+    var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
 
 
     /* -------------------------------------------------------------------- */

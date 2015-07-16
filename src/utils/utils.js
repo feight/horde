@@ -121,7 +121,7 @@ module.exports = function(grunt){
             var data = "{}";
 
             try{
-                data = fs.readFileSync("grunt/temp/history.json", "utf8");
+                data = fs.readFileSync("horde/temp/history.json", "utf8");
             }catch(e){}
 
             try{
@@ -138,7 +138,7 @@ module.exports = function(grunt){
 
             var jsonfile = require("jsonfile");
             var path = require("path");
-            var file = "grunt/temp/history.json";
+            var file = "horde/temp/history.json";
 
             grunt.file.mkdir(path.dirname(file));
 
