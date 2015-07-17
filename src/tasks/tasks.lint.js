@@ -55,7 +55,7 @@ module.exports = function(grunt){
 
         paths = paths.concat(utils.expand(settings.lint.jshint.paths || []));
 
-        options = extend(settings.lint.jscs.options || {}, options || {});
+        options = extend(settings.lint.jshint.options || {}, options || {});
 
         utils.runHistoryFunction(paths, "lint", "jshint", id, function(selects, callback){
 
@@ -83,9 +83,11 @@ module.exports = function(grunt){
 
     this.lesslint = function(paths, options, id){
 
-        options = extend(settings.lint.jscs.options || {}, options || {});
+        paths = paths || [];
 
-        paths.concat(settings.lint.jscs.paths || []);
+        paths.concat(settings.lint.lesslint.paths || []);
+
+        options = extend(settings.lint.lesslint.options || {}, options || {});
 
         utils.runHistoryFunction(paths, "lint", "lesslint", id, function(selects, callback){
 
