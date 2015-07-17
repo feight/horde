@@ -31,7 +31,7 @@ module.exports = function(grunt){
 
     var clean = function(paths){
 
-        paths = paths.concat(settings.clean.paths);
+        paths = paths.concat(settings.clean.paths || []);
 
         for(var i = 0; i < paths.length; i++){
 
