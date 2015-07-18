@@ -68,6 +68,14 @@ module.exports = function(grunt){
 
         },
 
+        rsync : function(source, destination){
+
+            grunt.file.mkdir(destination);
+
+            utils.execSync("rsync -avz --ignore-times --checksum {0} {1}".format(source, destination));
+
+        },
+
         addChildModules : function(exports, filename, dirname, args){
 
             var path = require("path");
