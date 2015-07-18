@@ -2,4 +2,6 @@
 
 npm install
 
-npm install -g bower
+echo bower needs to be installed as root
+
+sudo npm install -g bower

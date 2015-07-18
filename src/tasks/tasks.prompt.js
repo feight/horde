@@ -22,64 +22,25 @@ module.exports = function(grunt){
 
     /* -------------------------------------------------------------------- */
     /*
-            public
+            presets
     */
     /* -------------------------------------------------------------------- */
 
 
-    this.get = function(types, task, callback){
+    var presets = {
+        environment : [
+            { name : "Local", value : "dev" },
+            { name : "Stage", value : "stage" },
+            { name : "Live", value : "live" }
+        ],
+        application : [
+            { name : "Frontend", value : "frontend" },
+            { name : "Backend", value : "backend" }
+        ],
+        site : function(){
 
-        done = task.async();
-
-        if(typeof types === "string"){
-            types = [types];
-        }
-
-        var completed = 0;
-        var data = {};
-
-        var run = function(key){
-
-            this[key](function(response){
-
-                data[key] = response;
-
-                completed++;
-
-                if(completed === types.length){
-
-                    callback(data);
-
-                    done();
-
-                }
-
-            });
-
-        };
-
-        for(var i = 0; i < types.length; i++){
-            run(types[i]);
-        }
-
-    };
-
-    this.site = function(callback){
-
-        var inquirer = require("inquirer");
-        var path = require("path");
-        var fs = require("fs");
-
-        if(
-            grunt.config.data.prompt &&
-            grunt.config.data.prompt.siteId
-        ){
-
-            callback(grunt.config.data.prompt.siteId);
-
-        }else{
-
-            grunt.config("prompt", {});
+            var path = require("path");
+            var fs = require("fs");
 
             var folders = grunt.file.expand("src/sites/*/");
             var extensions = [];
@@ -121,28 +82,129 @@ module.exports = function(grunt){
 
             }
 
+        }
+    };
+
+
+    /* -------------------------------------------------------------------- */
+    /*
+            private
+    */
+    /* -------------------------------------------------------------------- */
+
+
+    var runPrompt = function(args){
+
+        var inquirer = require("inquirer");
+
+        args = args || {};
+
+        if(
+            grunt.config.data.prompt &&
+            grunt.config.data.prompt[args.id]
+        ){
+
+            callback(grunt.config.data.prompt[args.id]);
+
+        }else{
+
+            grunt.config("prompt", grunt.config("prompt") || {});
+
             var history = utils.getBuildHistory();
+
+            history.prompt = history.prompt || {};
+
+            if(typeof args.choices === "function"){
+                args.choices = args.choices();
+            }
 
             inquirer.prompt([
                 {
-                    message : "Select a site",
-                    name : "site",
+                    message : "Select {0}:".format(args.id),
+                    name : args.id,
                     type : "list",
-                    choices : choices
+                    default : history.prompt[args.id],
+                    choices : args.choices
                 }
             ], function(answers){
 
-                grunt.config("prompt.siteId", answers.site);
+                grunt.config("prompt." + args.id, answers[args.id]);
 
-                history.lastSite = answers.site;
+                history.prompt[args.id] = answers[args.id];
 
                 utils.setBuildHistory(history);
 
-                callback(answers.site);
+                args.callback(answers[args.id]);
 
             });
 
         }
+
+    };
+
+
+    /* -------------------------------------------------------------------- */
+    /*
+            public
+    */
+    /* -------------------------------------------------------------------- */
+
+
+    this.get = function(task, prompts, callback){
+
+        var done = task.async();
+
+        if(typeof prompts === "string"){
+            prompts = [prompts];
+        }
+
+        var completed = 0;
+        var data = {};
+
+        var process = function(prompts, index){
+
+            index = index || 0;
+
+            var prmpt = prompts[index];
+
+            if(typeof prmpt === "string"){
+
+                prmpt = {
+                    id : prmpt,
+                    choices : presets[prmpt]
+                };
+
+            }
+
+            var cb = function(response){
+
+                data[prmpt.id] = response;
+
+                completed++;
+
+                if(index !== prompts.length - 1){
+
+                    process(prompts, index + 1);
+
+                }else{
+
+                    callback(data);
+
+                    done();
+
+                }
+
+            };
+
+            runPrompt({
+                id : prmpt.id,
+                callback : cb,
+                choices : prmpt.choices
+            });
+
+        };
+
+        process(prompts);
 
     };
 
