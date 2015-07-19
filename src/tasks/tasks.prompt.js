@@ -93,6 +93,21 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
+    var getDefault = function(prompt){
+
+        var hist = utils.getBuildHistory().prompt || {};
+        var def = hist[prompt.id];
+
+        for(var i = 0; i < prompt.choices.length; i++){
+            if(prompt.choices[i].value === def){
+                return def;
+            }
+        }
+
+        return null;
+
+    };
+
     var runPrompt = function(args){
 
         var inquirer = require("inquirer");
@@ -123,7 +138,7 @@ module.exports = function(grunt){
                     message : "Select {0}:".format(args.id),
                     name : args.id,
                     type : "list",
-                    default : history.prompt[args.id],
+                    default : getDefault(args),
                     choices : args.choices
                 }
             ], function(answers){
