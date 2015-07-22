@@ -12,31 +12,28 @@ module.exports = function(grunt){
 
     /* -------------------------------------------------------------------- */
     /*
-            requires
-    */
-    /* -------------------------------------------------------------------- */
-
-
-    var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
-
-
-    /* -------------------------------------------------------------------- */
-    /*
             public
     */
     /* -------------------------------------------------------------------- */
 
 
-    this.image = function(path){
+    this.image = function(task, path, width){
 
-        var pictureTube = require('picture-tube')
-        var fs = require('fs');
+        var fs = require("fs");
+        var done = task.async();
+        var pictureTube = require("picture-tube");
 
-        var tube = pictureTube();
+        width = Number(width) || 50;
+
+        var tube = pictureTube({
+            cols : Math.floor(process.stdout.columns / (100 / width))
+        });
 
         tube.pipe(process.stdout);
 
-        fs.createReadStream(path).pipe(tube);
+        console.log("");
+
+        fs.createReadStream(path).pipe(tube).on("end", done);
 
     };
 

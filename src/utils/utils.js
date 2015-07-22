@@ -72,7 +72,7 @@ module.exports = function(grunt){
 
             grunt.file.mkdir(destination);
 
-            utils.execSync("rsync -avz --ignore-times --checksum {0} {1}".format(source, destination));
+            this.execSync("rsync -avz --ignore-times --checksum {0} {1}".format(source, destination));
 
         },
 
