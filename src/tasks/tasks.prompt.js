@@ -135,7 +135,7 @@ module.exports = function(grunt){
 
             inquirer.prompt([
                 {
-                    message : "Select {0}:".format(args.id),
+                    message : "Select {0}:".format(args.label),
                     name : args.id,
                     type : "list",
                     default : getDefault(args),
@@ -186,6 +186,7 @@ module.exports = function(grunt){
 
                 prmpt = {
                     id : prmpt,
+                    label : prmpt,
                     choices : presets[prmpt]
                 };
 
@@ -213,6 +214,7 @@ module.exports = function(grunt){
 
             runPrompt({
                 id : prmpt.id,
+                label : prmpt.label || prmpt.id,
                 callback : cb,
                 choices : prmpt.choices
             });
