@@ -19,11 +19,11 @@ module.exports = function(grunt){
 
     var tasks = [
         "bower",
-        "terminal",
         "clean",
         "compile",
         "compress",
         "copy",
+        "display",
         "filter",
         "images",
         "lint",
