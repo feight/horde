@@ -17,7 +17,7 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.image = function(task, path, width){
+    this.image = function(task, path, width, callback){
 
         var fs = require("fs");
         var done = task.async();
@@ -33,7 +33,13 @@ module.exports = function(grunt){
 
         console.log("");
 
-        fs.createReadStream(path).pipe(tube).on("end", done);
+        fs.createReadStream(path).pipe(tube).on("end", function(){
+
+            done();
+
+            callback();
+
+        });
 
     };
 

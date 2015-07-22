@@ -5,6 +5,7 @@
     "devDependencies" : {
         "csslint" : "0.10.x",
         "cssmin" : "0.4.x",
+        "dateformat" : "1.0.x",
         "glob" : "5.x",
         "gm" : "1.x",
         "jscs" : "1.x",

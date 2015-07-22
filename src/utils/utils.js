@@ -76,6 +76,14 @@ module.exports = function(grunt){
 
         },
 
+        formatDate : function(time, format){
+
+            var dateFormat = require("dateformat");
+
+            return dateFormat(time, format || "h:MM:ss TT");
+
+        },
+
         getHash : function(file){
 
             var crypto = require("crypto");
