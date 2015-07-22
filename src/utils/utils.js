@@ -76,31 +76,6 @@ module.exports = function(grunt){
 
         },
 
-        addChildModules : function(exports, filename, dirname, args){
-
-            var path = require("path");
-            var glob = require("glob");
-
-            var ext = path.extname(filename);
-            var base = path.basename(filename, ext);
-            var search = path.join(dirname, base + ".*" + ext);
-
-            files = glob.sync(search);
-
-            for(var i = 0; i < files.length; i++){
-
-                var regex = new RegExp("\\.(.*?)\\" + ext + "$", "i");
-                var match = regex.exec(files[i]);
-                var id = match[1];
-
-                exports[id] = require(files[i])(args);
-
-            }
-
-            return exports;
-
-        },
-
         getHash : function(file){
 
             var crypto = require("crypto");
