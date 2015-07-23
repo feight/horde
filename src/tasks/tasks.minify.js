@@ -22,7 +22,7 @@ module.exports = function(grunt){
     var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
 
     var extend = require("node.extend");
-
+    var humanize = require("humanize");
     var fs = require("fs");
 
 
@@ -44,14 +44,27 @@ module.exports = function(grunt){
         utils.runHistoryFunction(paths, "minify", "uglify", id, function(selects, callback){
 
             var uglify = require("uglify-js");
+            var data = [];
 
             for(var i = 0; i < selects.length; i++){
 
                 var output = uglify.minify(selects[i]);
+                var dest = selects[i].replace(/(.*?).js$/g, "$1.min.js");
 
-                fs.writeFileSync(selects[i].replace(/(.*?).js$/g, "$1.min.js"), output.code);
+                fs.writeFileSync(dest, output.code);
+
+                var stat1 = fs.statSync(selects[i]);
+                var stat2 = fs.statSync(dest);
+
+                grunt.log.ok("File {0} created: {1} → {2}".format(
+                    dest["cyan"],
+                    humanize.filesize(stat1["size"])["green"],
+                    humanize.filesize(stat2["size"])["green"]
+                ));
 
             }
+
+            callback();
 
         });
 
@@ -72,8 +85,18 @@ module.exports = function(grunt){
             for(var i = 0; i < selects.length; i++){
 
                 var output = cssmin(fs.readFileSync(selects[i], "utf8"));
+                var dest = selects[i].replace(/(.*?).css$/g, "$1.min.css");
 
-                fs.writeFileSync(selects[i].replace(/(.*?).css$/g, "$1.min.css"), output);
+                fs.writeFileSync(dest, output);
+
+                var stat1 = fs.statSync(selects[i]);
+                var stat2 = fs.statSync(dest);
+
+                grunt.log.ok("File {0} created: {1} → {2}".format(
+                    dest["cyan"],
+                    humanize.filesize(stat1["size"])["green"],
+                    humanize.filesize(stat2["size"])["green"]
+                ));
 
             }
 

@@ -68,11 +68,25 @@ module.exports = function(grunt){
 
         },
 
-        rsync : function(source, destination){
+        rsync : function(source, destination, excludes){
 
             grunt.file.mkdir(destination);
 
-            this.execSync("rsync -avz --ignore-times --checksum {0} {1}".format(source, destination));
+            if(
+                excludes &&
+                excludes instanceof Array &&
+                excludes.length > 0
+            ){
+                excludes = " --exclude=" + excludes.join(" --exclude=");
+            }else{
+                excludes = "";
+            }
+
+            var exec = "rsync -avz --ignore-times --checksum {2} {0} {1}".format(source, destination, excludes);
+
+            console.log(exec);
+
+            this.execSync(exec);
 
         },
 

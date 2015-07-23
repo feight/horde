@@ -99,7 +99,7 @@ module.exports = function(grunt){
             }else if(ext === ".css"){
 
                 if(!file.match(/[\.\-]min\.css$/g)){
-                    css.push(file.replace(/(.*?).js$/g, "$1.min.css"));
+                    css.push(file.replace(/(.*?).css$/g, "$1.min.css"));
                 }else{
                     css.push(file);
                 }
