@@ -17,9 +17,11 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
+    var resolve = require("path").resolve;
+
     return {
-        utils : require(require("path").resolve("horde/src/utils/utils.js"))(grunt),
-        tasks : require(require("path").resolve("horde/src/tasks/tasks.js"))(grunt)
+        utils : require(resolve("horde/src/utils/utils.js"))(grunt),
+        tasks : require(resolve("horde/src/tasks/tasks.js"))(grunt)
     };
 
 };
