@@ -165,9 +165,11 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.get = function(task, prompts, callback){
+    this.get = function(task, prompts, callback, useHistory){
 
         var done = task.async();
+
+        var history = utils.getBuildHistory();
 
         if(typeof prompts === "string"){
             prompts = [prompts];
@@ -211,6 +213,30 @@ module.exports = function(grunt){
                 }
 
             };
+
+            if(
+                useHistory &&
+                history.prompt &&
+                history.prompt[prmpt.id]
+            ){
+
+                var val = history.prompt[prmpt.id];
+
+                for(var i = 0; i < prmpt.choices.length; i++){
+                    if(prmpt.choices[i].value ===  history.prompt[prmpt.id]){
+                        val = prmpt.choices[i].name;
+                    }
+                }
+
+                console.log("{0} {1} {2}".format(
+                    "?"["green"],
+                    "Select {0}:".format(prmpt.id)["white"].bold,
+                    val["cyan"]
+                ));
+
+                return cb(history.prompt[prmpt.id]);
+
+            }
 
             runPrompt({
                 id : prmpt.id,
