@@ -153,6 +153,19 @@ module.exports = function(grunt){
 
         },
 
+        writeJSON : function(file, json, options){
+
+            var jsonfile = require("jsonfile");
+            var path = require("path");
+
+            options = options || { spaces : 2 };
+
+            grunt.file.mkdir(path.dirname(file));
+
+            jsonfile.writeFileSync(file, json, options);
+
+        },
+
         process : function(str, data){
 
             if(typeof str === "object"){

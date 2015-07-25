@@ -119,7 +119,7 @@ module.exports = function(grunt){
             grunt.config.data.prompt[args.id]
         ){
 
-            callback(grunt.config.data.prompt[args.id]);
+            args.callback(grunt.config.data.prompt[args.id]);
 
         }else{
 
