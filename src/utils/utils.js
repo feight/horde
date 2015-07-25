@@ -72,6 +72,13 @@ module.exports = function(grunt){
 
         rsync : function(source, destination, excludes){
 
+            var path = require("path");
+            var fs = require("fs");
+
+            if(!fs.existsSync(source)){
+                return;
+            }
+
             grunt.file.mkdir(destination);
 
             if(
@@ -84,11 +91,7 @@ module.exports = function(grunt){
                 excludes = "";
             }
 
-            var exec = "rsync -avz --ignore-times --checksum {2} {0} {1}".format(source, destination, excludes);
-
-            console.log(exec);
-
-            this.execSync(exec);
+            this.execSync("rsync -avz --ignore-times --checksum {2} {0} {1}".format(source, destination, excludes));
 
         },
 
