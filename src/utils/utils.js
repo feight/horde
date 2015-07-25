@@ -62,6 +62,8 @@ module.exports = function(grunt){
 
     var obj = {
 
+        extend : require("node.extend"),
+
         execSync : function(command){
 
             require("child_process").execSync(command, { stdio : [0, 1, 2] });
