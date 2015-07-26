@@ -31,7 +31,7 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.less = function(paths, options, id){
+    this.less = function(paths, options, id, complete){
 
         paths = paths || [];
 
@@ -41,6 +41,7 @@ module.exports = function(grunt){
 
         utils.runHistoryFunction(paths, "compile", "less", id, function(selects, callback){
 
+            var humanize = require("humanize");
             var less = require("less");
             var fs = require("fs");
 
@@ -51,20 +52,36 @@ module.exports = function(grunt){
                 if(files[index]){
 
                     var data = fs.readFileSync(files[index], "utf8");
+                    var output = files[index].replace(/(.*?).less$/g, "$1.css");
                     var last = !files[index + 1];
 
-                    less.render(data, options, function(error, output){
+                    options.filename = files[index];
+
+                    less.render(data, options, function(error, response){
 
                         if(error){
                             grunt.fail.fatal(error);
                         }
 
-                        fs.writeFileSync(files[index].replace(/(.*?).less$/g, "$1.css"), output.css);
+                        fs.writeFileSync(output, response.css);
+
+                        var stat = fs.statSync(output);
+
+                        grunt.log.ok("File {0} created: {1}".format(
+                            output["cyan"],
+                            humanize.filesize(stat["size"])["green"]
+                        ));
 
                         if(!last){
+
                             process(files, index + 1);
+
                         }else{
+
                             callback();
+
+                            complete();
+
                         }
 
                     });
@@ -75,7 +92,7 @@ module.exports = function(grunt){
 
             process(selects);
 
-        });
+        }, complete);
 
     };
 

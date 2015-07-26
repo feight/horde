@@ -62,7 +62,7 @@ module.exports = function(grunt){
                         var includeRE = /<(script|link).*?(href|src)=['"](.*?)['"].*?>/g;
                         var include = includeRE.exec(includes[k]);
 
-                        compression.files.push(include[3].toLowerCase());
+                        compression.files.push(include[3]);
 
                     }
 

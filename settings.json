@@ -6,10 +6,7 @@
     },
     "compile" : {
         "less" : {
-            "options" : {
-                "cleancss" : true,
-                "compress" : true
-            }
+            "options" : {}
         }
     },
     "compress" : {

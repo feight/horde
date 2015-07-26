@@ -237,7 +237,7 @@ module.exports = function(grunt){
 
         },
 
-        runHistoryFunction : function(paths, key, engine, id, func){
+        runHistoryFunction : function(paths, key, engine, id, func, empty){
 
             id = id || "all";
 
@@ -279,6 +279,12 @@ module.exports = function(grunt){
                     }
 
                 });
+
+            }else{
+
+                if(typeof empty === "function"){
+                    empty();
+                }
 
             }
 
