@@ -28,8 +28,6 @@ module.exports = function(grunt){
 
             paths[i] = paths[i].format.apply(paths[i], formats);
 
-            console.log(paths[i]);
-
             if(fs.existsSync(paths[i])){
 
                 try{
