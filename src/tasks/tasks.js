@@ -30,7 +30,8 @@ module.exports = function(grunt){
         images   : require(resolve("horde/src/tasks/tasks.images.js"))(grunt),
         lint     : require(resolve("horde/src/tasks/tasks.lint.js"))(grunt),
         minify   : require(resolve("horde/src/tasks/tasks.minify.js"))(grunt),
-        prompt   : require(resolve("horde/src/tasks/tasks.prompt.js"))(grunt)
+        prompt   : require(resolve("horde/src/tasks/tasks.prompt.js"))(grunt),
+        settings : require(resolve("horde/src/tasks/tasks.settings.js"))(grunt)
     };
 
 };
