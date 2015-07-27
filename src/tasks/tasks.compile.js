@@ -31,7 +31,7 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.less = function(paths, options, id, complete){
+    this.less = function(paths, options, complete){
 
         paths = paths || [];
 
@@ -39,7 +39,11 @@ module.exports = function(grunt){
 
         options = extend(settings.compile.less.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "compile", "less", id, function(selects, callback){
+        utils.runHistoryFunction(paths, "compile", "less", function(selects, callback){
+
+            if(!selects){
+                return complete();
+            }
 
             var humanize = require("humanize");
             var less = require("less");
@@ -92,7 +96,7 @@ module.exports = function(grunt){
 
             process(selects);
 
-        }, complete);
+        });
 
     };
 

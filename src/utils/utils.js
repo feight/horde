@@ -121,9 +121,7 @@ module.exports = function(grunt){
         getBuildHistory : function(){
 
             if(grunt.config("cacheHistory")){
-
                 return grunt.config("cacheHistory");
-
             }
 
             var fs = require("fs");
@@ -237,13 +235,11 @@ module.exports = function(grunt){
 
         },
 
-        runHistoryFunction : function(paths, key, engine, id, func, empty){
-
-            id = id || "all";
+        runHistoryFunction : function(paths, key, engine, func){
 
             var history = this.getBuildHistory();
 
-            var tag = (engine + ":" + id)["cyan"];
+            var tag = (engine)["cyan"];
             var selects = [];
             var self = this;
 
@@ -266,9 +262,11 @@ module.exports = function(grunt){
 
             }
 
-            if(selects.length > 0){
+            selects = selects.length === 0 ? null : selects;
 
-                func(selects, function(){
+            func(selects, function(){
+
+                if(selects){
 
                     for(var j = 0; j < selects.length; j++){
 
@@ -278,15 +276,9 @@ module.exports = function(grunt){
 
                     }
 
-                });
-
-            }else{
-
-                if(typeof empty === "function"){
-                    empty();
                 }
 
-            }
+            });
 
         }
 

@@ -31,7 +31,7 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.jscs = function(paths, options, id){
+    this.jscs = function(paths, options){
 
         paths = paths || [];
 
@@ -39,17 +39,21 @@ module.exports = function(grunt){
 
         options = extend(settings.lint.jscs.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "lint", "jscs", id, function(selects, callback){
+        utils.runHistoryFunction(paths, "lint", "jscs", function(selects, callback){
 
-            utils.execSync("jscs {0} --config {1}".format(selects.join(" "), options.config));
+            if(selects){
 
-            callback();
+                utils.execSync("jscs {0} --config {1}".format(selects.join(" "), options.config));
+
+                callback();
+
+            }
 
         });
 
     };
 
-    this.jshint = function(paths, options, id){
+    this.jshint = function(paths, options){
 
         paths = paths || [];
 
@@ -57,19 +61,23 @@ module.exports = function(grunt){
 
         options = extend(settings.lint.jshint.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "lint", "jshint", id, function(selects, callback){
+        utils.runHistoryFunction(paths, "lint", "jshint", function(selects, callback){
 
-            utils.execSync("jshint {0} --config {1}".format(selects.join(" "), options.config));
+            if(selects){
 
-            console.log("No code style errors found.");
+                utils.execSync("jshint {0} --config {1}".format(selects.join(" "), options.config));
 
-            callback();
+                console.log("No code style errors found.");
+
+                callback();
+
+            }
 
         });
 
     };
 
-    this.jshintNode = function(paths, options, id){
+    this.jshintNode = function(paths, options){
 
         paths = paths || [];
 
@@ -77,11 +85,11 @@ module.exports = function(grunt){
 
         options = extend(settings.lint.jshint_node.options || {}, options || {});
 
-        this.jshint(paths, options, "node");
+        this.jshint(paths, options);
 
     };
 
-    this.lesslint = function(paths, options, id){
+    this.lesslint = function(paths, options){
 
         paths = paths || [];
 
@@ -89,7 +97,11 @@ module.exports = function(grunt){
 
         options = extend(settings.lint.lesslint.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "lint", "lesslint", id, function(selects, callback){
+        utils.runHistoryFunction(paths, "lint", "lesslint", function(selects, callback){
+
+            if(!selects){
+                return;
+            }
 
             var csslint = require("csslint").CSSLint;
             var table = require("text-table");

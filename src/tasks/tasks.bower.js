@@ -33,10 +33,14 @@ module.exports = function(grunt){
 
         destination = destination || "assets/lib/bower";
 
-        utils.runHistoryFunction(paths, "bower", "install", "all", function(selects, callback){
+        utils.runHistoryFunction(paths, "bower", "install", function(selects, callback){
 
-            for(var i = 0; i < selects.length; i++){
-                utils.execSync("cd " + path.resolve(path.dirname(selects[i])) + "; bower install --config.directory=" + destination);
+            if(selects){
+
+                for(var i = 0; i < selects.length; i++){
+                    utils.execSync("cd " + path.resolve(path.dirname(selects[i])) + "; bower install --config.directory=" + destination);
+                }
+
             }
 
             callback();

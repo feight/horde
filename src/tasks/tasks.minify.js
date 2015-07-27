@@ -33,7 +33,7 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.js = function(paths, options, id){
+    this.js = function(paths, options){
 
         paths = paths || [];
 
@@ -41,10 +41,13 @@ module.exports = function(grunt){
 
         options = extend(settings.minify.js.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "minify", "uglify", id, function(selects, callback){
+        utils.runHistoryFunction(paths, "minify", "uglify", function(selects, callback){
+
+            if(!selects){
+                return;
+            }
 
             var uglify = require("uglify-js");
-            var data = [];
 
             for(var i = 0; i < selects.length; i++){
 
@@ -70,7 +73,7 @@ module.exports = function(grunt){
 
     };
 
-    this.css = function(paths, options, id){
+    this.css = function(paths, options){
 
         paths = paths || [];
 
@@ -78,7 +81,11 @@ module.exports = function(grunt){
 
         options = extend(settings.minify.css.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "minify", "css", id, function(selects, callback){
+        utils.runHistoryFunction(paths, "minify", "css", function(selects, callback){
+
+            if(!selects){
+                return;
+            }
 
             var cssmin = require("cssmin");
 

@@ -121,7 +121,10 @@ module.exports = function(grunt){
 
     var combine = function(root, type, output, files, debug){
 
+        var humanize = require("humanize");
+
         var source = "";
+        var cwd = process.cwd() + "/";
 
         output = path.join(root, output);
 
@@ -129,16 +132,12 @@ module.exports = function(grunt){
             return;
         }
 
-        grunt.log.ok("compress:{0}".format(output)["cyan"]);
-
         for(var i = 0; i < files.length; i++){
 
             files[i] = path.join(root, files[i]);
 
-            console.log("   {0}".format(files[i]));
-
             if(!fs.existsSync(files[i])){
-                grunt.fail.fatal("File not found {0}".format(files[i]));
+                grunt.fail.fatal("File not found {0}".format(files[i].replace(cwd, "")));
             }
 
             var data = fs.readFileSync(files[i], "utf8");
@@ -157,7 +156,24 @@ module.exports = function(grunt){
 
         }
 
+        grunt.file.mkdir(path.dirname(output));
+
         fs.writeFileSync(output, source);
+
+        var stat = fs.statSync(output);
+
+        grunt.log.ok("File {0} created: {1}".format(
+            output.replace(cwd, "")["cyan"],
+            humanize.filesize(stat["size"])["green"]
+        ));
+
+        if(grunt.option("verbose")){
+
+            for(var i = 0; i < files.length; i++){
+                console.log("   {0}".format(files[i].replace(cwd, ""))["grey"]);
+            }
+
+        }
 
     };
 
@@ -178,6 +194,11 @@ module.exports = function(grunt){
         options = extend(settings.compile.less.options || {}, options || {});
 
         var comps = getCompressions(paths);
+
+        grunt.log.ok("{0} : {1} found".format(
+            "compress"["cyan"],
+            "{0} files"["green"].format(comps.length)
+        ));
 
         for(var i = 0; i < comps.length; i++){
 
