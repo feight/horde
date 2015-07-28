@@ -89,7 +89,7 @@ module.exports = function(grunt){
 
     };
 
-    this.lesslint = function(paths, options){
+    this.lesslint = function(paths, options, complete){
 
         paths = paths || [];
 
@@ -100,46 +100,52 @@ module.exports = function(grunt){
         utils.runHistoryFunction(paths, "lint", "lesslint", function(selects, callback){
 
             if(!selects){
-                return;
+                return complete();
             }
 
             var csslint = require("csslint").CSSLint;
             var table = require("text-table");
             var less = require("less");
+            var path = require("path");
             var fs = require("fs");
 
             var errors = [];
 
-            var process = function(files, index){
+            var processLint = function(files, index){
 
                 index = index || 0;
 
                 if(files[index]){
 
                     var data = fs.readFileSync(files[index], "utf8");
-                    var last = !files[index + 1];
 
-                    less.render(data, options, function(error, output){
+                    options.filename = path.join(process.cwd(), files[index]);
+
+                    less.render(data, options.less, function(error, output){
 
                         if(error){
                             grunt.fail.fatal(error);
                         }
 
-                        result = csslint.verify(output.css, options);
+                        if(output.css !== ""){
 
-                        result.messages.forEach(function(message){
+                            result = csslint.verify(output.css, grunt.file.readJSON(options.config));
 
-                            errors.push({
-                                message : message,
-                                file : files[index],
-                                output : output.css
+                            result.messages.forEach(function(message){
+
+                                errors.push({
+                                    message : message,
+                                    file : files[index],
+                                    output : output.css
+                                });
+
                             });
 
-                        });
+                        }
 
-                        if(!last){
+                        if(files[index + 1]){
 
-                            process(files, index + 1);
+                            processLint(files, index + 1);
 
                         }else{
 
@@ -199,9 +205,17 @@ module.exports = function(grunt){
 
                                 grunt.fail.fatal("CSS Lint errors detected.");
 
-                            }
+                                complete();
 
-                            callback();
+                            }else{
+
+                                console.log("No code style errors found.");
+
+                                complete();
+
+                                callback();
+
+                            }
 
                         }
 
@@ -211,7 +225,7 @@ module.exports = function(grunt){
 
             };
 
-            process(selects);
+            processLint(selects);
 
         });
 

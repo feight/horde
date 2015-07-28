@@ -169,8 +169,8 @@ module.exports = function(grunt){
 
         if(grunt.option("verbose")){
 
-            for(var i = 0; i < files.length; i++){
-                console.log("   {0}".format(files[i].replace(cwd, ""))["grey"]);
+            for(var j = 0; j < files.length; j++){
+                console.log("   {0}".format(files[j].replace(cwd, ""))["grey"]);
             }
 
         }

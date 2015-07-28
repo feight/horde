@@ -178,7 +178,7 @@ module.exports = function(grunt){
         var completed = 0;
         var data = {};
 
-        var process = function(prompts, index){
+        var processPrompts = function(prompts, index){
 
             index = index || 0;
 
@@ -202,7 +202,7 @@ module.exports = function(grunt){
 
                 if(index !== prompts.length - 1){
 
-                    process(prompts, index + 1);
+                    processPrompts(prompts, index + 1);
 
                 }else{
 
@@ -247,7 +247,7 @@ module.exports = function(grunt){
 
         };
 
-        process(prompts);
+        processPrompts(prompts);
 
     };
 

@@ -47,9 +47,10 @@ module.exports = function(grunt){
 
             var humanize = require("humanize");
             var less = require("less");
+            var path = require("path");
             var fs = require("fs");
 
-            var process = function(files, index){
+            var processLess = function(files, index){
 
                 index = index || 0;
 
@@ -59,12 +60,24 @@ module.exports = function(grunt){
                     var output = files[index].replace(/(.*?).less$/g, "$1.css");
                     var last = !files[index + 1];
 
-                    options.filename = files[index];
+                    options.filename = path.join(process.cwd(), files[index]);
 
                     less.render(data, options, function(error, response){
 
                         if(error){
-                            grunt.fail.fatal(error);
+
+                            if(!last){
+
+                                processLess(files, index + 1);
+
+                            }else{
+
+                                callback();
+
+                                complete();
+
+                            }
+
                         }
 
                         fs.writeFileSync(output, response.css);
@@ -78,7 +91,7 @@ module.exports = function(grunt){
 
                         if(!last){
 
-                            process(files, index + 1);
+                            processLess(files, index + 1);
 
                         }else{
 
@@ -94,7 +107,7 @@ module.exports = function(grunt){
 
             };
 
-            process(selects);
+            processLess(selects);
 
         });
 
