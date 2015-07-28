@@ -110,7 +110,7 @@ module.exports = function(grunt){
 
             var errors = [];
 
-            var process = function(files, index){
+            var processLint = function(files, index){
 
                 index = index || 0;
 
@@ -139,7 +139,7 @@ module.exports = function(grunt){
 
                         if(!last){
 
-                            process(files, index + 1);
+                            processLint(files, index + 1);
 
                         }else{
 
@@ -211,7 +211,7 @@ module.exports = function(grunt){
 
             };
 
-            process(selects);
+            processLint(selects);
 
         });
 

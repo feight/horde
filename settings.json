@@ -22,6 +22,9 @@
             "options" : {
                 "multiples" : [1, 2, 4]
             }
+        },
+        "minify" : {
+            "options" : {}
         }
     },
     "lint" : {
