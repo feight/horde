@@ -62,15 +62,21 @@ module.exports = function(grunt){
 
                     options.filename = path.join(process.cwd(), files[index]);
 
-                    console.log(options);
-
                     less.render(data, options, function(error, response){
 
                         if(error){
 
-                            console.log(error);
+                            if(!last){
 
-                            return complete();
+                                processLess(files, index + 1);
+
+                            }else{
+
+                                callback();
+
+                                complete();
+
+                            }
 
                         }
 
