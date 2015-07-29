@@ -31,126 +31,194 @@ module.exports = function(grunt){
     /* -------------------------------------------------------------------- */
 
 
-    this.cutResponsive = function(images, options){
+    this.cutResponsive = function(images, options, complete){
 
+        var humanize = require("humanize");
+        var sizeOf = require("image-size");
+        var path = require("path");
+        var PSD = require("psd");
         var fs = require("fs");
+        var gm = require("gm");
+
+        var self = this;
 
         options = extend(settings.images.responsive.options || {}, options || {});
 
-        var compileMatches = function(files){
+        var compileMatches = function(files, callback){
 
-            var matches = {};
+            var targets = [];
+
+            var sizesFilter = function(value){
+                return value <= this;
+            };
 
             for(var i = 0; i < files.length; i++){
 
-                var base = files[i].replace(/(.*?)@\d*\.?\dx(.*).psd/i, "$1$2");
-                var format = files[i].replace(/(.*?)@\d*\.?\dx.(.*).psd/i, "$2");
+                var re = /(.*?)@(\d)x.(.*).psd/i;
+                var format = files[i].replace(re, "$3");
+                var size = Number(files[i].replace(re, "$2"));
+                var sizes = options.multiples.filter(sizesFilter, size);
 
                 format = format === "jpg" ? "jpeg" : format;
 
-                matches[base] = matches[base] || {
-                    files : [base],
-                    base : base,
-                    psd : files[i],
-                    format : format
-                };
-
-                matches[base].files.push(files[i].replace(/(.*?).psd/i, "$1"));
+                targets.push({
+                    target : files[i],
+                    format : format,
+                    size : size,
+                    sizes : sizes
+                });
 
             }
 
-            for(var match in matches){
+            var processMatches = function(matches, index){
 
-                var last = 0;
-                var largest = null;
+                index = index || 0;
 
-                for(var j = 0; j < matches[match].files.length; j++){
+                if(matches[index]){
 
-                    var resolution = Number(matches[match].files[j].replace(/.*?@(\d*\.?\d)x.*/i, "$1"));
+                    var next = function(){
 
-                    if(resolution > last){
-
-                        largest = matches[match].files[j];
-                        last = resolution;
-
-                    }
-
-                }
-
-                matches[match].largest = largest;
-
-                utils.execSync("sips -s format " + matches[match].format + " " + matches[match].psd + " --out " + matches[match].largest);
-
-                grunt.log.ok(["File " + matches[match].largest["cyan"] + " created"]);
-
-            }
-
-            return matches;
-
-        };
-
-        var cleanMatches = function(matches){
-
-            for(var match in matches){
-
-                for(var i = 0; i < matches[match].files.length ; i++){
-
-                    var file = matches[match].files[i];
-
-                    if(file !== matches[match].largest){
-
-                        if(fs.existsSync(file)){
-                            fs.unlinkSync(file);
+                        if(matches[index + 1]){
+                            processMatches(matches, index + 1);
+                        }else{
+                            callback(matches);
                         }
 
+                    };
+
+                    var target = matches[index].target;
+                    var dir = path.dirname(target);
+                    var name = path.basename(target);
+                    var previous = path.join(dir, "resized/.info", name);
+                    var dest = path.join(dir, "resized/.info/", name.replace(/.psd$/, ""));
+
+                    if(
+                        fs.existsSync(previous) &&
+                        utils.getHash(previous) === utils.getHash(target)
+                    ){
+                        return next();
                     }
 
-                }
+                    grunt.file.mkdir(path.dirname(dest));
 
-            }
+                    PSD.open(target).then(function(psd){
 
-        };
+                        return psd.image.saveAsPng(dest);
 
-        var cutResponsiveImages = function(matches, cb){
+                    }).then(function(){
 
-            var cuts = options.multiples;
+                        grunt.file.copy(target, previous);
 
-            var resizeImage = function(match){
+                        next();
 
-                var sizeOf = require("image-size");
-                var size = sizeOf(match.largest);
-                var resolution = Number(match.largest.replace(/.*?@(\d*\.?\d)x.*/i, "$1"));
-
-                for(var i = 0; i < cuts.length; i++){
-
-                    if(cuts[i] < resolution){
-
-                        var width = Math.ceil(size.width * (cuts[i] / resolution));
-                        var height = Math.ceil(size.height * (cuts[i] / resolution));
-                        var path = match.largest.replace(/(.*?)@\d*\.?\dx(.*)/i, "$1@" + String(cuts[i]) + "x$2");
-
-                        path = cuts[i] === 1 ? match.base : path;
-
-                        utils.execSync("gm convert -size {0}x{1} {2} -resize {3}x{4} {5}".format(
-                            size.width,
-                            size.height,
-                            match.largest,
-                            width,
-                            height,
-                            path
-                        ));
-
-                        grunt.log.ok(["File " + path["cyan"] + " created"]);
-
-                    }
+                    });
 
                 }
 
             };
 
-            for(var match in matches){
-                resizeImage(matches[match]);
+            processMatches(targets);
+
+        };
+
+        var cutResponsiveImages = function(matches, callback){
+
+            var imageCuts = [];
+
+            for(var i = 0; i < matches.length; i++){
+
+                var target = matches[i].target;
+                var name = path.basename(target);
+                var size = matches[i].size;
+                var dir = path.dirname(target);
+                var sizes = matches[i].sizes;
+                var input = path.join(dir, "resized/.info/", name.replace(/.psd$/, ""));
+                var previous = path.join(dir, "resized/.info/previous/", name.replace(/.psd$/, ""));
+                var inputSize = sizeOf(input);
+
+                for(var j = 0; j < sizes.length; j++){
+
+                    var dest = input.replace("/.info/", "/").replace(/(.*?)@\d*\.?\dx(.*)/i, "$1@" + String(sizes[j]) + "x$2");
+                    var base = input.replace("/.info/", "/").replace(/(.*?)@\d*\.?\dx(.*)/i, "$1$2");
+
+                    dest = sizes[j] === 1 ? base : dest;
+
+                    if(
+                        !fs.existsSync(dest) ||
+                        !fs.existsSync(previous) ||
+                        utils.getHash(input) !== utils.getHash(previous)
+                    ){
+
+                        imageCuts.push({
+                            previous : {
+                                path : previous
+                            },
+                            output : {
+                                path : dest,
+                                width : Math.ceil(inputSize.width * (sizes[j] / size)),
+                                height : Math.ceil(inputSize.height * (sizes[j] / size))
+                            },
+                            input : {
+                                path : input
+                            }
+                        });
+
+                    }
+
+                }
+
             }
+
+            var cutImages = function(cuts, index){
+
+                index = index || 0;
+
+                if(cuts[index]){
+
+                    var next = function(){
+
+                        var stat = fs.statSync(cuts[index].output.path);
+
+                        grunt.log.ok("File {0} cut: {1}".format(
+                            cuts[index].output.path["cyan"],
+                            humanize.filesize(stat["size"])["green"]
+                        ));
+
+                        self.compress(cuts[index].output.path, function(){
+
+                            if(cuts[index + 1]){
+
+                                cutImages(cuts, index + 1);
+
+                            }else{
+
+                                grunt.file.copy(cuts[index].input.path, cuts[index].previous.path);
+
+                                callback();
+
+                            }
+
+                        });
+
+                    };
+
+                    gm(cuts[index].input.path).thumb(
+                        cuts[index].output.width,
+                        cuts[index].output.height,
+                        cuts[index].output.path,
+                        100,
+                        next
+                    );
+
+                }
+
+            };
+
+            if(!imageCuts.length){
+                return callback();
+            }
+
+            cutImages(imageCuts);
 
         };
 
@@ -159,11 +227,11 @@ module.exports = function(grunt){
             "{0} files"["green"].format(images.length)
         ));
 
-        var matches = compileMatches(images);
+        compileMatches(images, function(matches){
 
-        cleanMatches(matches);
+            cutResponsiveImages(matches, complete);
 
-        cutResponsiveImages(matches);
+        });
 
     };
 
@@ -185,7 +253,7 @@ module.exports = function(grunt){
             for(var i = 0; i < files.length; i++){
 
                 var dir = path.dirname(files[i]);
-                var targetDir = path.join(dir, "resized/target");
+                var targetDir = path.join(dir, "resized/.info/target");
                 var json = grunt.file.readJSON(files[i]);
 
                 cache[files[i]] = json;
@@ -289,9 +357,9 @@ module.exports = function(grunt){
                         png = image.substring(0, image.length - path.extname(image).length) + ".png";
                     }
 
-                    var previous = path.join(dir, "resized/original", image);
+                    var previous = path.join(dir, "resized/.info/original", image);
                     var original = path.join(dir, image);
-                    var input = path.join(dir, "resized/target", png);
+                    var input = path.join(dir, "resized/.info/target", png);
                     var extname = path.extname(input);
                     var basename = png.substring(0, png.length - extname.length);
                     var conf = config[image].length ? config[image] : config[image].sizes;
@@ -369,6 +437,10 @@ module.exports = function(grunt){
 
             };
 
+            if(!sizes.length){
+                return callback();
+            }
+
             processResizes(sizes);
 
         };
@@ -445,7 +517,7 @@ module.exports = function(grunt){
 
                     case ".png" :{
 
-                        use = Imagemin.optipng({ optimizationLevel : 7 });
+                        use = Imagemin.optipng({ optimizationLevel : 3 });
 
                         break;
 

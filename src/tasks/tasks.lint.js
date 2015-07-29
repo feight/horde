@@ -211,9 +211,9 @@ module.exports = function(grunt){
 
                                 console.log("No code style errors found.");
 
-                                complete();
-
                                 callback();
+
+                                complete();
 
                             }
 
