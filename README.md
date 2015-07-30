@@ -10,9 +10,9 @@ Setup
 ------------------------------------------------------------------------------
 
 1. Include The Horde as a submodule in the root of your project.
-2. Run the setup bash.
+2. Install npm modules.
 ```
-./setup.sh
+npm install
 ```
 3. Setup as grunt as per usual in the root of your project
 4. Import the utils and tasks from horde like such

@@ -35,7 +35,7 @@ module.exports = function(grunt){
 
         for(var i = 0; i < paths.length; i++){
 
-            utils.execSync("rm -rf {0}".format(paths[i]));
+            grunt.file.delete(paths[i]);
 
             console.log("Cleaned {0}".format(paths[i]["green"]));
 

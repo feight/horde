@@ -25,7 +25,6 @@ module.exports = function(grunt){
         compile  : require(resolve("horde/src/tasks/tasks.compile.js"))(grunt),
         compress : require(resolve("horde/src/tasks/tasks.compress.js"))(grunt),
         display  : require(resolve("horde/src/tasks/tasks.display.js"))(grunt),
-        filter   : require(resolve("horde/src/tasks/tasks.filter.js"))(grunt),
         images   : require(resolve("horde/src/tasks/tasks.images.js"))(grunt),
         lint     : require(resolve("horde/src/tasks/tasks.lint.js"))(grunt),
         minify   : require(resolve("horde/src/tasks/tasks.minify.js"))(grunt),

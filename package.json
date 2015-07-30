@@ -3,6 +3,7 @@
     "private" : true,
     "version" : "0.0.0",
     "devDependencies" : {
+        "bower" : "1.4.x",
         "csslint" : "0.10.x",
         "cssmin" : "0.4.x",
         "dateformat" : "1.0.x",
@@ -14,6 +15,7 @@
         "imagemin-jpeg-recompress" : "4.x",
         "image-size" : "0.3.x",
         "inquirer" : "0.9.x",
+        "jscs" : "2.x",
         "jshint" : "2.8.x",
         "jsonfile" : "2.x",
         "less" : "2.5.x",
