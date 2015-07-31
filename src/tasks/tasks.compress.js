@@ -156,9 +156,7 @@ module.exports = function(grunt){
 
         }
 
-        grunt.file.mkdir(path.dirname(output));
-
-        fs.writeFileSync(output, source);
+        grunt.file.write(output, source);
 
         var stat = fs.statSync(output);
 

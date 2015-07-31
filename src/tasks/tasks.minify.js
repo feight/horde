@@ -22,8 +22,44 @@ module.exports = function(grunt){
     var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
 
     var extend = require("node.extend");
-    var humanize = require("humanize");
-    var fs = require("fs");
+
+
+    /* -------------------------------------------------------------------- */
+    /*
+            private
+    */
+    /* -------------------------------------------------------------------- */
+
+
+    var writeMinification = function(dest, output, original, options){
+
+        var humanize = require("humanize");
+        var path = require("path");
+        var fs = require("fs");
+
+        options = options || {};
+
+        if(options.cwd && options.dest){
+
+            var rel = path.relative(options.cwd, dest);
+            var base = dest.split(rel)[0];
+
+            dest = path.join(base, options.dest, rel);
+
+        }
+
+        grunt.file.write(dest, output);
+
+        var stat1 = fs.statSync(original);
+        var stat2 = fs.statSync(dest);
+
+        grunt.log.ok("File {0} created: {1} → {2}".format(
+            dest["cyan"],
+            humanize.filesize(stat1["size"])["green"],
+            humanize.filesize(stat2["size"])["green"]
+        ));
+
+    };
 
 
     /* -------------------------------------------------------------------- */
@@ -35,39 +71,26 @@ module.exports = function(grunt){
 
     this.js = function(paths, options){
 
-        paths = paths || [];
+        utils.runHistoryFunction((paths || []), "minify", "uglify", function(selects, callback){
 
-        paths = paths.concat(utils.expand(settings.minify.js.paths || []));
+            if(selects){
 
-        options = extend(settings.minify.js.options || {}, options || {});
+                var uglify = require("uglify-js");
 
-        utils.runHistoryFunction(paths, "minify", "uglify", function(selects, callback){
+                selects.forEach(function(select){
 
-            if(!selects){
-                return;
-            }
+                    writeMinification(
+                        select.replace(/(.*?).js$/g, "$1.min.js"),
+                        uglify.minify(select).code,
+                        select,
+                        options
+                    );
 
-            var uglify = require("uglify-js");
+                });
 
-            for(var i = 0; i < selects.length; i++){
-
-                var output = uglify.minify(selects[i]);
-                var dest = selects[i].replace(/(.*?).js$/g, "$1.min.js");
-
-                fs.writeFileSync(dest, output.code);
-
-                var stat1 = fs.statSync(selects[i]);
-                var stat2 = fs.statSync(dest);
-
-                grunt.log.ok("File {0} created: {1} → {2}".format(
-                    dest["cyan"],
-                    humanize.filesize(stat1["size"])["green"],
-                    humanize.filesize(stat2["size"])["green"]
-                ));
+                callback();
 
             }
-
-            callback();
 
         });
 
@@ -75,39 +98,26 @@ module.exports = function(grunt){
 
     this.css = function(paths, options){
 
-        paths = paths || [];
+        utils.runHistoryFunction((paths || []), "minify", "css", function(selects, callback){
 
-        paths = paths.concat(utils.expand(settings.minify.css.paths || []));
+            if(selects){
 
-        options = extend(settings.minify.css.options || {}, options || {});
+                var cssmin = require("cssmin");
 
-        utils.runHistoryFunction(paths, "minify", "css", function(selects, callback){
+                selects.forEach(function(select){
 
-            if(!selects){
-                return;
-            }
+                    writeMinification(
+                        select.replace(/(.*?).css$/g, "$1.min.css"),
+                        cssmin(grunt.file.read(select)),
+                        select,
+                        options
+                    );
 
-            var cssmin = require("cssmin");
+                });
 
-            for(var i = 0; i < selects.length; i++){
-
-                var output = cssmin(fs.readFileSync(selects[i], "utf8"));
-                var dest = selects[i].replace(/(.*?).css$/g, "$1.min.css");
-
-                fs.writeFileSync(dest, output);
-
-                var stat1 = fs.statSync(selects[i]);
-                var stat2 = fs.statSync(dest);
-
-                grunt.log.ok("File {0} created: {1} → {2}".format(
-                    dest["cyan"],
-                    humanize.filesize(stat1["size"])["green"],
-                    humanize.filesize(stat2["size"])["green"]
-                ));
+                callback();
 
             }
-
-            callback();
 
         });
 

@@ -80,7 +80,7 @@ module.exports = function(grunt){
 
                         }
 
-                        fs.writeFileSync(output, response.css);
+                        grunt.file.write(output, response.css);
 
                         var stat = fs.statSync(output);
 

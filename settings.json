@@ -58,11 +58,7 @@
     },
     "minify" : {
         "js" : {
-            "options" : {
-                "compress" : {
-                    "drop_console" : true
-                }
-            }
+            "options" : {}
         },
         "css" : {
             "options" : {}

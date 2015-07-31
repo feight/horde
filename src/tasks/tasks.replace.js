@@ -33,7 +33,7 @@ module.exports = function(grunt){
 
             }
 
-            fs.writeFileSync(paths[i], data);
+            grunt.file.write(paths[i], data);
 
         }
 
