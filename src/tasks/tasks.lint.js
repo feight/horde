@@ -23,6 +23,8 @@ module.exports = function(grunt){
 
     var extend = require("node.extend");
 
+    var self = this;
+
 
     /* -------------------------------------------------------------------- */
     /*
@@ -192,7 +194,7 @@ module.exports = function(grunt){
 
     };
 
-    this.jshint = function(paths, options){
+    this.jshint = function(paths, options, skipNode){
 
         paths = paths || [];
 
@@ -238,17 +240,19 @@ module.exports = function(grunt){
 
         });
 
+        if(!skipNode){
+            self.jshintNode();
+        }
+
     };
 
-    this.jshintNode = function(paths, options){
+    this.jshintNode = function(){
 
-        paths = paths || [];
-
-        paths = paths.concat(utils.expand(settings.lint.jshint_node.paths || []));
-
-        options = extend(settings.lint.jshint_node.options || {}, options || {});
-
-        this.jshint(paths, options);
+        this.jshint(
+            (utils.expand(settings.lint.jshint_node.paths || [])),
+            (settings.lint.jshint_node.options || {}),
+            true
+        );
 
     };
 

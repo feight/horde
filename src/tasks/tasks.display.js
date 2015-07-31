@@ -35,6 +35,8 @@ module.exports = function(grunt){
 
         fs.createReadStream(path).pipe(tube).on("end", function(){
 
+            console.log("");
+
             done();
 
             callback();

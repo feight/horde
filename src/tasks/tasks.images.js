@@ -74,6 +74,10 @@ module.exports = function(grunt){
 
                 index = index || 0;
 
+                if(!matches.length){
+                    return callback(matches);
+                }
+
                 if(matches[index]){
 
                     var next = function(){
@@ -282,6 +286,10 @@ module.exports = function(grunt){
             var processTargetCuts = function(cuts, index){
 
                 index = index || 0;
+
+                if(!cuts.length){
+                    return callback();
+                }
 
                 if(cuts[index]){
 
