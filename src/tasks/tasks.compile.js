@@ -62,7 +62,7 @@ module.exports = function(grunt){
 
                     options.filename = path.join(process.cwd(), files[index]);
 
-                    less.render(data, options, function(error, response){
+                    less.render(data, options.less, function(error, response){
 
                         if(error){
 
@@ -77,6 +77,15 @@ module.exports = function(grunt){
                                 complete();
 
                             }
+
+                        }
+
+                        if(options.cwd && options.dest){
+
+                            var rel = path.relative(options.cwd, output);
+                            var base = output.split(rel)[0];
+
+                            output = path.join(base, options.dest, rel);
 
                         }
 
