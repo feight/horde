@@ -119,14 +119,14 @@ module.exports = function(grunt){
 
     };
 
-    var combine = function(root, type, output, files, debug){
+    var combine = function(type, output, files, options){
 
         var humanize = require("humanize");
 
         var source = "";
         var cwd = process.cwd() + "/";
 
-        output = path.join(root, output);
+        output = path.join(options.root, (options.dest || ""), output);
 
         if(!files.length){
             return;
@@ -134,7 +134,7 @@ module.exports = function(grunt){
 
         for(var i = 0; i < files.length; i++){
 
-            files[i] = path.join(root, files[i]);
+            files[i] = path.join(options.root, files[i]);
 
             if(!fs.existsSync(files[i])){
                 grunt.fail.fatal("File not found {0}".format(files[i].replace(cwd, "")));
@@ -142,7 +142,7 @@ module.exports = function(grunt){
 
             var data = fs.readFileSync(files[i], "utf8");
 
-            if(debug){
+            if(options.debug){
 
                 if(type === "css"){
                     source += "/* {1} */\n{0}\n".format(data, files[i]);
@@ -202,8 +202,8 @@ module.exports = function(grunt){
 
             var groups = getGroups(comps[i].files);
 
-            combine(options.root, "css", "{0}.min.css".format(comps[i].target), groups.css, options.debug);
-            combine(options.root, "js", "{0}.min.js".format(comps[i].target), groups.js, options.debug);
+            combine("css", "{0}.min.css".format(comps[i].target), groups.css, options);
+            combine("js", "{0}.min.js".format(comps[i].target), groups.js, options);
 
         }
 
