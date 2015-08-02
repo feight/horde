@@ -151,7 +151,7 @@ module.exports = function(grunt){
                 }
 
             }else{
-                source += data;
+                source += "\n" + data;
             }
 
         }
