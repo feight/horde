@@ -41,6 +41,8 @@ module.exports = function(grunt){
 
         }
 
+        utils.setBuildHistory({});
+
     };
 
     return clean;
