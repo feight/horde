@@ -31,6 +31,8 @@ module.exports = function(grunt){
 
     var clean = function(paths){
 
+        var history = utils.getBuildHistory();
+
         paths = paths.concat(settings.clean.paths || []);
 
         for(var i = 0; i < paths.length; i++){
@@ -41,7 +43,9 @@ module.exports = function(grunt){
 
         }
 
-        utils.setBuildHistory({});
+        utils.setBuildHistory({
+            prompt : history.prompt
+        });
 
     };
 

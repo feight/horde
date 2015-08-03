@@ -66,17 +66,7 @@ module.exports = function(grunt){
 
                         if(error){
 
-                            if(!last){
-
-                                processLess(files, index + 1);
-
-                            }else{
-
-                                callback();
-
-                                complete();
-
-                            }
+                            grunt.fail.fatal(error);
 
                         }
 
