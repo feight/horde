@@ -35,11 +35,15 @@ module.exports = function(grunt){
 
     var validate = function(errors, type, callback){
 
+        if(!errors){
+            return false;
+        }
+
         if(!errors.length){
 
             console.log("No {0} code style errors found.".format(type));
 
-            return typeof callback === "function" ? callback() : null;
+            return typeof callback === "function" ? callback() : true;
 
         }
 
@@ -100,6 +104,8 @@ module.exports = function(grunt){
             type
         ));
 
+        return false;
+
     };
 
 
@@ -113,105 +119,100 @@ module.exports = function(grunt){
     this.jscs = function(paths, options, complete){
 
         paths = paths || [];
-
         paths = paths.concat(utils.expand(settings.lint.jscs.paths || []));
-
         options = extend(settings.lint.jscs.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "lint", "jscs", function(selects, callback){
+        var selects = utils.getCacheSelects(paths, "lint", "jscs");
 
-            if(!selects){
-                return validate([], "JSCS", complete);
+        if(!selects){
+
+            validate([], "JSCS");
+
+            return complete();
+
+        }
+
+        var JSCS = require("jscs");
+        var fs = require("fs");
+
+        options.config = grunt.file.readJSON(options.config);
+
+        var jscs = new JSCS();
+        var errors = [];
+
+        jscs.registerDefaultRules();
+        jscs.configure(options.config);
+
+        var processJSCS = function(files, index){
+
+            index = index || 0;
+
+            if(files[index]){
+
+                var next = function(){
+
+                    if(files[index + 1]){
+
+                        processJSCS(files, index + 1);
+
+                    }else{
+
+                        if(validate(errors, "JSCS")){
+
+                            utils.setCacheSelects(selects, "lint", "jscs");
+
+                            complete();
+
+                        }
+
+                    }
+
+                };
+
+                var code = fs.readFileSync(files[index], "utf8");
+
+                jscs.checkFile(files[index]).then(function(list){
+
+                    var errs = list["_errorList"];
+
+                    for(var i = 0; i < errs.length; i++){
+
+                        errors.push({
+                            character : errs[i].column + 3,
+                            reason : errs[i].message,
+                            line : errs[i].line,
+                            file : files[index],
+                            description : "",
+                            code : code
+                        });
+
+                    }
+
+                    next();
+
+                });
+
             }
 
-            var JSCS = require("jscs");
-            var fs = require("fs");
+        };
 
-            options.config = grunt.file.readJSON(options.config);
-
-            var jscs = new JSCS();
-            var errors = [];
-
-            jscs.registerDefaultRules();
-            jscs.configure(options.config);
-
-            var processJSCS = function(files, index){
-
-                index = index || 0;
-
-                if(files[index]){
-
-                    var next = function(){
-
-                        if(files[index + 1]){
-
-                            processJSCS(files, index + 1);
-
-                        }else{
-
-                            validate(errors, "JSCS", function(){
-
-                                callback();
-
-                                complete();
-
-                            });
-
-                        }
-
-                    };
-
-                    var code = fs.readFileSync(files[index], "utf8");
-
-                    var results = jscs.checkFile(files[index]).then(function(list){
-
-                        var errs = list["_errorList"];
-
-                        for(var i = 0; i < errs.length; i++){
-
-                            errors.push({
-                                character : errs[i].column + 3,
-                                reason : errs[i].message,
-                                line : errs[i].line,
-                                file : files[index],
-                                description : "",
-                                code : code
-                            });
-
-                        }
-
-                        next();
-
-                    });
-
-                }
-
-            };
-
-            processJSCS(selects);
-
-        });
+        processJSCS(selects);
 
     };
 
     this.jshint = function(paths, options, skipNode){
 
         paths = paths || [];
-
         paths = paths.concat(utils.expand(settings.lint.jshint.paths || []));
-
         options = extend(settings.lint.jshint.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "lint", "jshint", function(selects, callback){
+        var selects = utils.getCacheSelects(paths, "lint", "jshint");
+        var errors = [];
 
-            if(!selects){
-                return validate([], "JSHint");
-            }
+        if(selects){
 
             var jshint = require("jshint").JSHINT;
             var fs = require("fs");
-
-            var errors = [];
 
             options.config = grunt.file.readJSON(options.config);
 
@@ -236,12 +237,14 @@ module.exports = function(grunt){
 
             }
 
-            validate(errors, "JSHint", callback);
+        }
 
-        });
+        if(validate(errors, "JSHint")){
+            utils.setCacheSelects(selects, "lint", "jshint");
+        }
 
         if(!skipNode){
-            self.jshintNode();
+            this.jshintNode();
         }
 
     };
@@ -264,85 +267,83 @@ module.exports = function(grunt){
 
         options = extend(settings.lint.lesslint.options || {}, options || {});
 
-        utils.runHistoryFunction(paths, "lint", "lesslint", function(selects, callback){
+        var selects = utils.getCacheSelects(paths, "lint", "lesslint");
 
-            if(!selects){
-                return validate([], "LessLint", complete);
-            }
+        if(!selects){
+            return validate([], "LessLint", complete);
+        }
 
-            var csslint = require("csslint").CSSLint;
-            var less = require("less");
-            var path = require("path");
-            var fs = require("fs");
+        var csslint = require("csslint").CSSLint;
+        var less = require("less");
+        var path = require("path");
+        var fs = require("fs");
 
-            var errors = [];
+        var errors = [];
 
-            var processLint = function(files, index){
+        var processLint = function(files, index){
 
-                index = index || 0;
+            index = index || 0;
 
-                if(files[index]){
+            if(files[index]){
 
-                    var data = fs.readFileSync(files[index], "utf8");
+                var data = fs.readFileSync(files[index], "utf8");
 
-                    options.filename = path.join(process.cwd(), files[index]);
+                options.filename = path.join(process.cwd(), files[index]);
 
-                    less.render(data, options.less, function(error, output){
+                less.render(data, options.less, function(error, output){
 
-                        var next = function(){
+                    var next = function(){
 
-                            if(files[index + 1]){
+                        if(files[index + 1]){
 
-                                processLint(files, index + 1);
+                            processLint(files, index + 1);
 
-                            }else{
+                        }else{
 
-                                validate(errors, "LessLint", function(){
+                            validate(errors, "LessLint", function(){
 
-                                    callback();
+                                utils.setCacheSelects(selects, "lint", "lesslint");
 
-                                    complete();
-
-                                });
-
-                            }
-
-                        };
-
-                        if(error){
-                            grunt.fail.fatal(error);
-                        }
-
-                        if(output.css !== ""){
-
-                            result = csslint.verify(output.css, grunt.file.readJSON(options.config));
-
-                            result.messages.forEach(function(message){
-
-                                errors.push({
-                                    character : message.col,
-                                    reason : message.rule.name,
-                                    line : message.line,
-                                    file : files[index],
-                                    description : message.rule.desc,
-                                    code : output.css
-                                });
+                                complete();
 
                             });
 
                         }
 
-                        next();
+                    };
 
-                    });
+                    if(error){
+                        grunt.fail.fatal(error);
+                    }
 
-                }
+                    if(output.css !== ""){
 
-            };
+                        result = csslint.verify(output.css, grunt.file.readJSON(options.config));
 
-            processLint(selects);
+                        result.messages.forEach(function(message){
 
-        });
+                            errors.push({
+                                character : message.col,
+                                reason : message.rule.name,
+                                line : message.line,
+                                file : files[index],
+                                description : message.rule.desc,
+                                code : output.css
+                            });
+
+                        });
+
+                    }
+
+                    next();
+
+                });
+
+            }
+
+        };
+
+        processLint(selects);
 
     };
 
