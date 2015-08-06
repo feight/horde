@@ -37,8 +37,7 @@
         "jshint" : {
             "options" : {
                 "config" : "horde/settings.jshint.json"
-            },
-            "paths" : []
+            }
         },
         "jshint_node" : {
             "options" : {

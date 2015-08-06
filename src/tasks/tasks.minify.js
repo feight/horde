@@ -71,55 +71,51 @@ module.exports = function(grunt){
 
     this.js = function(paths, options){
 
-        utils.runHistoryFunction((paths || []), "minify", "uglify", function(selects, callback){
+        var selects = utils.getCacheSelects((paths || []), "minify", "uglify");
 
-            if(selects){
+        if(selects){
 
-                var uglify = require("uglify-js");
+            var uglify = require("uglify-js");
 
-                selects.forEach(function(select){
+            selects.forEach(function(select){
 
-                    writeMinification(
-                        select.replace(/(.*?).js$/g, "$1.min.js"),
-                        uglify.minify(select).code,
-                        select,
-                        options
-                    );
+                writeMinification(
+                    select.replace(/(.*?).js$/g, "$1.min.js"),
+                    uglify.minify(select).code,
+                    select,
+                    options
+                );
 
-                });
+            });
 
-                callback();
+            utils.setCacheSelects(selects, "minify", "uglify");
 
-            }
-
-        });
+        }
 
     };
 
     this.css = function(paths, options){
 
-        utils.runHistoryFunction((paths || []), "minify", "css", function(selects, callback){
+        var selects = utils.getCacheSelects((paths || []), "minify", "css");
 
-            if(selects){
+        if(selects){
 
-                var cssmin = require("cssmin");
+            var cssmin = require("cssmin");
 
-                selects.forEach(function(select){
+            selects.forEach(function(select){
 
-                    writeMinification(
-                        select.replace(/(.*?).css$/g, "$1.min.css"),
-                        cssmin(grunt.file.read(select)),
-                        select,
-                        options
-                    );
+                writeMinification(
+                    select.replace(/(.*?).css$/g, "$1.min.css"),
+                    cssmin(grunt.file.read(select)),
+                    select,
+                    options
+                );
 
-                });
+            });
 
-                callback();
+            utils.setCacheSelects(selects, "minify", "css");
 
-            }
-
-        });
+        }
 
     };
 

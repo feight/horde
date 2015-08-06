@@ -29,7 +29,11 @@ module.exports = function(grunt){
 
             for(var j = 0; j < replacements.length; j++){
 
-                data = data.replace(replacements[j][0], replacements[j][1]);
+                if(data.match(replacements[j][0])){
+
+                    data = data.replace(replacements[j][0], replacements[j][1]);
+
+                }
 
             }
 

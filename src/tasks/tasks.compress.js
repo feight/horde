@@ -18,6 +18,7 @@ module.exports = function(grunt){
 
 
     var utils = require(require("path").resolve("horde/src/utils/utils.js"))(grunt);
+    var minify = require(require("path").resolve("horde/src/tasks/tasks.minify.js"))(grunt);
 
     var settings = grunt.file.readJSON(require("path").resolve("horde/settings.json"));
 
@@ -89,25 +90,11 @@ module.exports = function(grunt){
             var ext = path.extname(file);
 
             if(ext === ".js"){
-
-                if(!file.match(/[\.\-]min\.js$/g)){
-                    js.push(file.replace(/(.*?).js$/g, "$1.min.js"));
-                }else{
-                    js.push(file);
-                }
-
+                js.push(file);
             }else if(ext === ".css"){
-
-                if(!file.match(/[\.\-]min\.css$/g)){
-                    css.push(file.replace(/(.*?).css$/g, "$1.min.css"));
-                }else{
-                    css.push(file);
-                }
-
+                css.push(file);
             }else if(ext === ".less"){
-
-                css.push(file.replace(/(.*?).less$/g, "$1.min.css"));
-
+                css.push(file);
             }
 
         }
@@ -134,24 +121,44 @@ module.exports = function(grunt){
 
         for(var i = 0; i < files.length; i++){
 
-            files[i] = path.join(options.root, files[i]);
+            var file = path.join(options.root, files[i]);
+            var out = String(file);
+            var ext = path.extname(file);
 
-            if(!fs.existsSync(files[i])){
-                grunt.fail.fatal("File not found {0}".format(files[i].replace(cwd, "")));
+            if(ext === ".js" && !file.match(/[\.\-]min\.js$/g)){
+                out = out.replace(/(.*?).js$/g, "$1.min.js");
+            }else if(ext === ".css" && !file.match(/[\.\-]min\.css$/g)){
+                out = out.replace(/(.*?).css$/g, "$1.min.css");
+            }else if(ext === ".less"){
+                out = out.replace(/(.*?).less$/g, "$1.min.css");
             }
 
-            var data = fs.readFileSync(files[i], "utf8");
+            if(!fs.existsSync(out)){
+
+                if(ext === ".js"){
+                    minify.js([file]);
+                }else if(ext === ".css"){
+                    minify.css([file]);
+                }
+
+            }
+
+            if(!fs.existsSync(out)){
+                grunt.fail.fatal("File not found {0}".format(out.replace(cwd, "")));
+            }
+
+            var data = fs.readFileSync(out, "utf8");
 
             if(options.debug){
 
                 if(type === "css"){
-                    source += "/* {1} */\n{0}\n".format(data, files[i]);
+                    source += "/* {1} */\n{0}\n".format(data, file);
                 }else if(type === "js"){
-                    source += "// {1}\n{0}\n".format(data, files[i]);
+                    source += "// {1}\n{0}\n".format(data, file);
                 }
 
             }else{
-                source += data;
+                source += "\n" + data;
             }
 
         }

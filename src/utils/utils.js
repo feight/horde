@@ -235,7 +235,7 @@ module.exports = function(grunt){
 
         },
 
-        runHistoryFunction : function(paths, key, engine, func){
+        getCacheSelects : function(paths, key, engine){
 
             var history = this.getBuildHistory();
 
@@ -264,25 +264,34 @@ module.exports = function(grunt){
 
             selects = selects.length === 0 ? null : selects;
 
-            func(selects, function(){
+            return selects;
 
-                if(selects){
+        },
 
-                    for(var j = 0; j < selects.length; j++){
+        setCacheSelects : function(selects, key, engine){
 
-                        history[key][engine][selects[j]] = self.getHash(selects[j]);
+            if(selects){
 
-                        self.setBuildHistory(history);
+                var history = this.getBuildHistory();
 
-                    }
+                history[key] = history[key] || {};
+                history[key][engine] = history[key][engine] || {};
+
+                for(var i = 0; i < selects.length; i++){
+
+                    history[key][engine][selects[i]] = this.getHash(selects[i]);
+
+                    this.setBuildHistory(history);
 
                 }
 
-            });
+            }
 
         }
 
     };
+
+    obj.deasync = require("deasync");
 
     return obj;
 
