@@ -237,6 +237,10 @@ module.exports = function(grunt){
 
         getCacheSelects : function(paths, key, engine){
 
+            if(!paths || !paths.length){
+                return null;
+            }
+
             var history = this.getBuildHistory();
 
             var tag = (engine)["cyan"];
