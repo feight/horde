@@ -34,6 +34,8 @@ module.exports = function(grunt){
 
     };
 
+    var interval = null;
+
 
     /* -------------------------------------------------------------------- */
     /*
@@ -45,6 +47,7 @@ module.exports = function(grunt){
     this.start = function(args){
 
         var extend = require("node.extend");
+        var async = require("async");
 
         args = extend({
             host : "localhost",
@@ -76,11 +79,6 @@ module.exports = function(grunt){
         // kill them all
         if(ports.length){
             utils.execSync("kill -9 {0}".format(ports.join(" ")));
-        }
-
-        // open the page
-        if(args.open === true){
-            utils.execSync("open http://{0}:{1}/".format(args.host, args.port));
         }
 
         cleanCert();
