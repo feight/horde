@@ -47,7 +47,6 @@ module.exports = function(grunt){
     this.start = function(args){
 
         var extend = require("node.extend");
-        var async = require("async");
 
         args = extend({
             host : "localhost",
