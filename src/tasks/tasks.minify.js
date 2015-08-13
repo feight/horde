@@ -48,16 +48,24 @@ module.exports = function(grunt){
 
         }
 
-        grunt.file.write(dest, output);
+        if(dest === original){
 
-        var stat1 = fs.statSync(original);
-        var stat2 = fs.statSync(dest);
+            grunt.log.ok("File {0} already exists".format(dest["cyan"]));
 
-        grunt.log.ok("File {0} created: {1} → {2}".format(
-            dest["cyan"],
-            humanize.filesize(stat1["size"])["green"],
-            humanize.filesize(stat2["size"])["green"]
-        ));
+        }else{
+
+            grunt.file.write(dest, output);
+
+            var stat1 = fs.statSync(original);
+            var stat2 = fs.statSync(dest);
+
+            grunt.log.ok("File {0} created: {1} → {2}".format(
+                dest["cyan"],
+                humanize.filesize(stat1["size"])["green"],
+                humanize.filesize(stat2["size"])["green"]
+            ));
+
+        }
 
     };
 
@@ -79,12 +87,17 @@ module.exports = function(grunt){
 
             selects.forEach(function(select){
 
-                writeMinification(
-                    select.replace(/(.*?).js$/g, "$1.min.js"),
-                    uglify.minify(select).code,
-                    select,
-                    options
-                );
+                var dest = String(select);
+                var code = grunt.file.read(select);
+
+                if(!dest.match(/[\.-]min.js$/)){
+
+                    dest = dest.replace(/(.*?).js$/g, "$1.min.js");
+                    code = uglify.minify(select).code;
+
+                }
+
+                writeMinification(dest, code, select, options);
 
             });
 
@@ -104,12 +117,17 @@ module.exports = function(grunt){
 
             selects.forEach(function(select){
 
-                writeMinification(
-                    select.replace(/(.*?).css$/g, "$1.min.css"),
-                    cssmin(grunt.file.read(select)),
-                    select,
-                    options
-                );
+                var dest = String(select);
+                var code = grunt.file.read(select);
+
+                if(!dest.match(/[\.-]min.css$/)){
+
+                    dest = dest.replace(/(.*?).css$/g, "$1.min.css");
+                    code = cssmin(code);
+
+                }
+
+                writeMinification(dest, code, select, options);
 
             });
 
