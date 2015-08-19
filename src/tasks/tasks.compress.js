@@ -135,10 +135,23 @@ module.exports = function(grunt){
 
             if(!fs.existsSync(out)){
 
-                if(ext === ".js"){
-                    minify.js([file]);
-                }else if(ext === ".css"){
-                    minify.css([file]);
+                if(options.minify.cwd && options.minify.dest){
+
+                    var rel = path.relative(options.minify.cwd, out);
+                    var base = out.split(rel)[0];
+
+                    out = path.join(base, options.minify.dest, rel);
+
+                }
+
+                if(!fs.existsSync(out)){
+
+                    if(ext === ".js"){
+                        minify.js([file], options.minify);
+                    }else if(ext === ".css"){
+                        minify.css([file], options.minify);
+                    }
+
                 }
 
             }
