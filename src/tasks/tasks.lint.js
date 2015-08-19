@@ -224,14 +224,18 @@ module.exports = function(grunt){
 
                 for(var j = 0; j < jshint.errors.length; j++){
 
-                    errors.push({
-                        character : jshint.errors[j].character,
-                        reason : jshint.errors[j].reason,
-                        line : jshint.errors[j].line,
-                        file : selects[i],
-                        description : "",
-                        code : code
-                    });
+                    if(jshint.errors[j] !== null){
+
+                        errors.push({
+                            character : jshint.errors[j].character,
+                            reason : jshint.errors[j].reason,
+                            line : jshint.errors[j].line,
+                            file : selects[i],
+                            description : "",
+                            code : code
+                        });
+
+                    }
 
                 }
 
