@@ -179,7 +179,11 @@ module.exports = function(grunt){
 
                 if(cuts[index]){
 
-                    var next = function(){
+                    var next = function(error){
+
+                        if(error){
+                            grunt.fail.fatal(error);
+                        }
 
                         var stat = fs.statSync(cuts[index].output.path);
 
