@@ -135,7 +135,7 @@ module.exports = function(grunt){
 
             if(!fs.existsSync(out)){
 
-                if(options.minify.cwd && options.minify.dest){
+                if(options.minify && options.minify.cwd && options.minify.dest){
 
                     var rel = path.relative(options.minify.cwd, out);
                     var base = out.split(rel)[0];
